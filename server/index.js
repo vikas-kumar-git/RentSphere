@@ -213,22 +213,35 @@ app.use((error, _request, response, _next) => {
   })
 })
 
-const server = app.listen(port, () => {
-  console.log(`API server running on http://localhost:${port}`)
-})
+let server
+
+if (process.env.VERCEL !== '1') {
+  server = app.listen(port, () => {
+    console.log(`API server running on http://localhost:${port}`)
+  })
+}
 
 async function shutdown() {
   await client.close()
+
+  if (!server) {
+    process.exit(0)
+    return
+  }
 
   server.close(() => {
     process.exit(0)
   })
 }
 
-process.on('SIGINT', () => {
-  void shutdown()
-})
+if (process.env.VERCEL !== '1') {
+  process.on('SIGINT', () => {
+    void shutdown()
+  })
 
-process.on('SIGTERM', () => {
-  void shutdown()
-})
+  process.on('SIGTERM', () => {
+    void shutdown()
+  })
+}
+
+export default app

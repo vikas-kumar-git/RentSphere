@@ -20,11 +20,18 @@ PORT=4000
 CLIENT_ORIGIN=http://localhost:5173
 ```
 
-If you deploy the frontend and backend to different hosts, also set this for the frontend build:
+For a Vercel deployment of this repo, do not set `VITE_API_BASE_URL`. The frontend will call the
+same Vercel domain at `/api`, and Vercel will route those requests to the serverless API in
+`api/[...path].js`.
+
+If you deploy the frontend and backend to different hosts instead, set this for the frontend build:
 
 ```env
 VITE_API_BASE_URL=https://your-api-domain.com
 ```
+
+Do not use `http://localhost:4000` for `VITE_API_BASE_URL` in production. `localhost` means the
+visitor's own device, not your development machine or Vercel.
 
 ## Atlas Setup
 
