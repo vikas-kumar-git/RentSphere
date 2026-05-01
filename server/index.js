@@ -209,6 +209,16 @@ apiRouter.put(
   }),
 )
 
+apiRouter.post(
+  '/records/delete',
+  asyncHandler(async (request, response) => {
+    const recordId = assertString(request.body?.id, 'id')
+    const collection = await getCollection()
+    await collection.deleteOne({ _id: recordId })
+    response.status(204).send()
+  }),
+)
+
 apiRouter.delete(
   '/records/:id',
   asyncHandler(async (request, response) => {

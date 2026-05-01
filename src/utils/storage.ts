@@ -55,8 +55,9 @@ export async function saveRecord(record: TenantRecord): Promise<TenantRecord> {
 }
 
 export async function deleteRecord(id: string) {
-  await request<void>(`/api/records/${encodeURIComponent(id)}`, {
-    method: 'DELETE',
+  await request<void>('/api/records/delete', {
+    method: 'POST',
+    body: JSON.stringify({ id }),
   })
 }
 
