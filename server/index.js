@@ -4,6 +4,7 @@ import express from 'express'
 import { MongoClient, ServerApiVersion } from 'mongodb'
 
 const app = express()
+const apiRouter = express.Router()
 const port = Number(process.env.PORT || 4000)
 const mongoUri = process.env.MONGODB_URI
 const databaseName = process.env.MONGODB_DB_NAME || 'tenant_rent_mvp'
@@ -152,8 +153,8 @@ app.use(
 )
 app.use(express.json({ limit: '1mb' }))
 
-app.get(
-  '/api/health',
+apiRouter.get(
+  '/health',
   asyncHandler(async (_request, response) => {
     const collection = await getCollection()
     await collection.db.admin().ping()
@@ -161,8 +162,8 @@ app.get(
   }),
 )
 
-app.get(
-  '/api/records',
+apiRouter.get(
+  '/records',
   asyncHandler(async (_request, response) => {
     const collection = await getCollection()
     const records = await collection.find({}).sort({ month: -1, tenantName: 1 }).toArray()
@@ -170,8 +171,8 @@ app.get(
   }),
 )
 
-app.put(
-  '/api/records/:id',
+apiRouter.put(
+  '/records/:id',
   asyncHandler(async (request, response) => {
     const recordId = String(request.params.id)
     const collection = await getCollection()
@@ -183,8 +184,8 @@ app.put(
   }),
 )
 
-app.delete(
-  '/api/records/:id',
+apiRouter.delete(
+  '/records/:id',
   asyncHandler(async (request, response) => {
     const collection = await getCollection()
     await collection.deleteOne({ _id: String(request.params.id) })
@@ -192,14 +193,17 @@ app.delete(
   }),
 )
 
-app.delete(
-  '/api/records',
+apiRouter.delete(
+  '/records',
   asyncHandler(async (_request, response) => {
     const collection = await getCollection()
     await collection.deleteMany({})
     response.status(204).send()
   }),
 )
+
+app.use('/api', apiRouter)
+app.use(apiRouter)
 
 app.use((error, _request, response, _next) => {
   console.error(error)
