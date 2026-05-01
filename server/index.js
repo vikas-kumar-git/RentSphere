@@ -9,15 +9,20 @@ const port = Number(process.env.PORT || 4000)
 const mongoUri = process.env.MONGODB_URI
 const databaseName = process.env.MONGODB_DB_NAME || 'tenant_rent_mvp'
 const collectionName = process.env.MONGODB_COLLECTION_NAME || 'records'
+const vercelOrigins = [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL]
+  .filter(Boolean)
+  .map((url) => `https://${url}`)
 const clientOrigins = (process.env.CLIENT_ORIGIN || '')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean)
+  .concat(vercelOrigins)
 const developmentOriginPatterns = [
   /^http:\/\/localhost:\d+$/,
   /^http:\/\/127\.0\.0\.1:\d+$/,
   /^http:\/\/0\.0\.0\.0:\d+$/,
 ]
+const vercelOriginPatterns = [/^https:\/\/[a-z0-9-]+\.vercel\.app$/i]
 
 if (!mongoUri) {
   throw new Error('Missing MONGODB_URI. Add it to your .env file before starting the API server.')
@@ -45,8 +50,12 @@ function getCorsOrigin(origin, callback) {
     process.env.NODE_ENV !== 'production' &&
     typeof origin === 'string' &&
     developmentOriginPatterns.some((pattern) => pattern.test(origin))
+  const isVercelOrigin =
+    process.env.VERCEL === '1' &&
+    typeof origin === 'string' &&
+    vercelOriginPatterns.some((pattern) => pattern.test(origin))
 
-  if (!origin || clientOrigins.length === 0 || isConfiguredOrigin || isDevelopmentOrigin) {
+  if (!origin || clientOrigins.length === 0 || isConfiguredOrigin || isDevelopmentOrigin || isVercelOrigin) {
     callback(null, true)
     return
   }
