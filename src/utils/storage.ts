@@ -48,8 +48,8 @@ export async function loadRecords(): Promise<TenantRecord[]> {
 }
 
 export async function saveRecord(record: TenantRecord): Promise<TenantRecord> {
-  return request<TenantRecord>(`/api/records/${encodeURIComponent(record.id)}`, {
-    method: 'PUT',
+  return request<TenantRecord>('/api/records', {
+    method: 'POST',
     body: JSON.stringify(record),
   })
 }

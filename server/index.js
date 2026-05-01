@@ -146,6 +146,15 @@ function asyncHandler(handler) {
   }
 }
 
+async function upsertRecord(payload, recordId) {
+  const collection = await getCollection()
+  const document = sanitizeRecordPayload(payload, recordId)
+
+  await collection.replaceOne({ _id: recordId }, document, { upsert: true })
+
+  return toTenantRecord(document)
+}
+
 app.use(
   cors({
     origin: getCorsOrigin,
@@ -171,16 +180,23 @@ apiRouter.get(
   }),
 )
 
+apiRouter.post(
+  '/records',
+  asyncHandler(async (request, response) => {
+    const recordId = assertString(request.body?.id, 'id')
+    const record = await upsertRecord(request.body, recordId)
+
+    response.json(record)
+  }),
+)
+
 apiRouter.put(
   '/records/:id',
   asyncHandler(async (request, response) => {
     const recordId = String(request.params.id)
-    const collection = await getCollection()
-    const document = sanitizeRecordPayload(request.body, recordId)
+    const record = await upsertRecord(request.body, recordId)
 
-    await collection.replaceOne({ _id: recordId }, document, { upsert: true })
-
-    response.json(toTenantRecord(document))
+    response.json(record)
   }),
 )
 
