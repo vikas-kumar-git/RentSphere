@@ -16,6 +16,7 @@ interface RecordGroup {
 
 interface RecordsTableProps {
   disabled?: boolean
+  showSearch?: boolean
   records: TenantRecord[]
   searchQuery: string
   onSearchChange: (value: string) => void
@@ -139,6 +140,7 @@ function buildGroupedRecords(records: TenantRecord[]): RecordGroup[] {
 
 function RecordsTable({
   disabled = false,
+  showSearch = true,
   records,
   searchQuery,
   onSearchChange,
@@ -151,15 +153,17 @@ function RecordsTable({
     <>
       <div className="toolbar">
         <h2 className="section-title">Monthly Records</h2>
-        <div className="search-box">
-          <input
-            type="text"
-            disabled={disabled}
-            value={searchQuery}
-            onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Search by tenant, room, month, or status..."
-          />
-        </div>
+        {showSearch ? (
+          <div className="search-box">
+            <input
+              type="text"
+              disabled={disabled}
+              value={searchQuery}
+              onChange={(event) => onSearchChange(event.target.value)}
+              placeholder="Search by tenant, room, month, or status..."
+            />
+          </div>
+        ) : null}
       </div>
 
       <div className="table-wrap">

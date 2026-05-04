@@ -118,6 +118,46 @@ input:disabled{
   color:var(--warn);
 }
 
+.mode-switch{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+}
+
+.mode-switch h2{
+  font-size:18px;
+  margin:0 0 4px;
+}
+
+.mode-switch p{
+  color:var(--muted);
+  font-size:14px;
+  margin:0;
+}
+
+.segmented-control{
+  display:inline-grid;
+  grid-template-columns:repeat(2, minmax(84px,1fr));
+  gap:4px;
+  padding:4px;
+  background:#e5e7eb;
+  border-radius:12px;
+}
+
+.segmented-control button{
+  height:38px;
+  border-radius:9px;
+  background:transparent;
+  color:#374151;
+}
+
+.segmented-control button.active{
+  background:#fff;
+  color:var(--primary);
+  box-shadow:0 1px 4px rgba(15,23,42,0.12);
+}
+
 .section-title{
   margin:0 0 14px;
   font-size:20px;
@@ -176,6 +216,101 @@ button{
 .btn-primary:hover{background:var(--primary-dark)}
 .btn-secondary{background:#e5e7eb;color:#111827}
 .btn-danger{background:var(--danger);color:#fff}
+
+.pro-layout{
+  display:grid;
+  grid-template-columns:minmax(300px, 360px) minmax(0, 1fr);
+  gap:20px;
+  align-items:start;
+}
+
+.rooms-panel{
+  position:sticky;
+  top:16px;
+}
+
+.room-form{
+  display:grid;
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.room-form-actions,
+.room-card-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.room-form-actions button,
+.room-card-actions button{
+  height:36px;
+  padding:0 10px;
+  border-radius:8px;
+  font-size:13px;
+}
+
+.room-list{
+  display:grid;
+  gap:10px;
+}
+
+.room-card{
+  display:grid;
+  gap:8px;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#fff;
+}
+
+.room-card--active{
+  border-color:rgba(15,118,110,0.45);
+  box-shadow:0 0 0 3px rgba(15,118,110,0.1);
+}
+
+.room-card > button{
+  display:grid;
+  gap:3px;
+  height:auto;
+  padding:0;
+  background:transparent;
+  color:var(--text);
+  text-align:left;
+}
+
+.room-card strong{
+  font-size:18px;
+}
+
+.room-card span,
+.room-card small,
+.room-heading p{
+  color:var(--muted);
+}
+
+.room-card small{
+  font-size:12px;
+}
+
+.pro-workspace{
+  min-width:0;
+}
+
+.room-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.room-heading h2{
+  margin:0 0 4px;
+  font-size:24px;
+}
+
+.room-heading p{
+  margin:0;
+}
 
 .toolbar{
   display:flex;
@@ -297,11 +432,15 @@ tfoot tr:hover td{
 }
 
 @media (max-width: 1000px){
+  .pro-layout{grid-template-columns:1fr}
+  .rooms-panel{position:static}
   .rent-form{grid-template-columns:repeat(2,1fr)}
   .summary{grid-template-columns:repeat(2,1fr)}
 }
 
 @media (max-width: 560px){
+  .mode-switch{align-items:stretch;flex-direction:column}
+  .segmented-control{width:100%}
   .rent-form{grid-template-columns:1fr}
   .summary{grid-template-columns:1fr}
   .header h1{font-size:22px}

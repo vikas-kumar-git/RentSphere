@@ -5,6 +5,8 @@ import type { RentFormValues } from '../types'
 interface RentFormProps {
   editingId?: string
   disabled?: boolean
+  lockRoomDetails?: boolean
+  showClearAll?: boolean
   initialValues: RentFormValues
   onSubmit: (values: RentFormValues) => Promise<void> | void
   onReset: () => void
@@ -14,6 +16,8 @@ interface RentFormProps {
 function RentForm({
   editingId,
   disabled = false,
+  lockRoomDetails = false,
+  showClearAll = true,
   initialValues: externalValues,
   onSubmit,
   onReset,
@@ -44,7 +48,7 @@ function RentForm({
           <input
             id="tenantName"
             required
-            disabled={disabled}
+            disabled={disabled || lockRoomDetails}
             name="tenantName"
             value={values.tenantName}
             onChange={handleChange}
@@ -57,7 +61,7 @@ function RentForm({
           <input
             id="roomNo"
             required
-            disabled={disabled}
+            disabled={disabled || lockRoomDetails}
             name="roomNo"
             value={values.roomNo}
             onChange={handleChange}
@@ -175,9 +179,11 @@ function RentForm({
           >
             Reset
           </button>
-          <button type="button" className="btn-danger" disabled={disabled} onClick={() => void onClearAll()}>
-            Clear All
-          </button>
+          {showClearAll ? (
+            <button type="button" className="btn-danger" disabled={disabled} onClick={() => void onClearAll()}>
+              Clear All
+            </button>
+          ) : null}
         </div>
       </form>
 

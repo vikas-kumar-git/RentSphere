@@ -1,4 +1,4 @@
-import type { TenantRecord } from '../types'
+import type { Room, TenantRecord } from '../types'
 
 const configuredApiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
 const API_BASE_URL = import.meta.env.DEV ? '' : configuredApiBaseUrl
@@ -47,6 +47,10 @@ export async function loadRecords(): Promise<TenantRecord[]> {
   return request<TenantRecord[]>('/api/records')
 }
 
+export async function loadRooms(): Promise<Room[]> {
+  return request<Room[]>('/api/rooms')
+}
+
 export async function saveRecord(record: TenantRecord): Promise<TenantRecord> {
   return request<TenantRecord>('/api/records', {
     method: 'POST',
@@ -54,8 +58,22 @@ export async function saveRecord(record: TenantRecord): Promise<TenantRecord> {
   })
 }
 
+export async function saveRoom(room: Room): Promise<Room> {
+  return request<Room>('/api/rooms', {
+    method: 'POST',
+    body: JSON.stringify(room),
+  })
+}
+
 export async function deleteRecord(id: string) {
   await request<void>('/api/records/delete', {
+    method: 'POST',
+    body: JSON.stringify({ id }),
+  })
+}
+
+export async function deleteRoom(id: string) {
+  await request<void>('/api/rooms/delete', {
     method: 'POST',
     body: JSON.stringify({ id }),
   })

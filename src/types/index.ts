@@ -2,6 +2,7 @@ export type PaymentStatus = 'Paid' | 'Partial' | 'Unpaid' | 'Advance'
 
 export interface TenantRecord {
   id: string
+  roomId?: string
   tenantName: string
   roomNo: string
   month: string
@@ -16,6 +17,12 @@ export interface TenantRecord {
   paid: number
   due: number
   status: PaymentStatus
+}
+
+export interface Room {
+  id: string
+  roomNo: string
+  tenantName: string
 }
 
 export interface RentFormValues {

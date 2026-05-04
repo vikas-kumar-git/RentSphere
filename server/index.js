@@ -9,6 +9,7 @@ const port = Number(process.env.PORT || 4000)
 const mongoUri = process.env.MONGODB_URI
 const databaseName = process.env.MONGODB_DB_NAME || 'tenant_rent_mvp'
 const collectionName = process.env.MONGODB_COLLECTION_NAME || 'records'
+const roomsCollectionName = process.env.MONGODB_ROOMS_COLLECTION_NAME || 'rooms'
 const vercelOrigins = [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL]
   .filter(Boolean)
   .map((url) => `https://${url}`)
@@ -37,6 +38,7 @@ const client = new MongoClient(mongoUri, {
 })
 
 let collectionPromise
+let roomsCollectionPromise
 
 function createHttpError(message, statusCode) {
   const error = new Error(message)
@@ -79,6 +81,15 @@ function assertNumber(value, fieldName) {
   return value
 }
 
+function optionalString(value) {
+  if (typeof value !== 'string') {
+    return undefined
+  }
+
+  const trimmedValue = value.trim()
+  return trimmedValue || undefined
+}
+
 function sanitizeRecordPayload(payload, recordId) {
   if (!payload || typeof payload !== 'object') {
     throw createHttpError('Record payload is required.', 400)
@@ -96,6 +107,7 @@ function sanitizeRecordPayload(payload, recordId) {
 
   return {
     _id: recordId,
+    roomId: optionalString(payload.roomId),
     tenantName: assertString(payload.tenantName, 'tenantName'),
     roomNo: assertString(payload.roomNo, 'roomNo'),
     month: assertString(payload.month, 'month'),
@@ -116,6 +128,7 @@ function sanitizeRecordPayload(payload, recordId) {
 function toTenantRecord(document) {
   return {
     id: String(document._id),
+    roomId: document.roomId,
     tenantName: document.tenantName,
     roomNo: document.roomNo,
     month: document.month,
@@ -133,6 +146,30 @@ function toTenantRecord(document) {
   }
 }
 
+function sanitizeRoomPayload(payload, roomId) {
+  if (!payload || typeof payload !== 'object') {
+    throw createHttpError('Room payload is required.', 400)
+  }
+
+  if (payload.id && String(payload.id) !== roomId) {
+    throw createHttpError('Room id does not match the request URL.', 400)
+  }
+
+  return {
+    _id: roomId,
+    roomNo: assertString(payload.roomNo, 'roomNo'),
+    tenantName: assertString(payload.tenantName, 'tenantName'),
+  }
+}
+
+function toRoom(document) {
+  return {
+    id: String(document._id),
+    roomNo: document.roomNo,
+    tenantName: document.tenantName,
+  }
+}
+
 async function getCollection() {
   if (!collectionPromise) {
     collectionPromise = client.connect().then(async (connectedClient) => {
@@ -143,6 +180,18 @@ async function getCollection() {
   }
 
   return collectionPromise
+}
+
+async function getRoomsCollection() {
+  if (!roomsCollectionPromise) {
+    roomsCollectionPromise = client.connect().then(async (connectedClient) => {
+      const collection = connectedClient.db(databaseName).collection(roomsCollectionName)
+      await collection.createIndex({ roomNo: 1 }, { unique: true })
+      return collection
+    })
+  }
+
+  return roomsCollectionPromise
 }
 
 function asyncHandler(handler) {
@@ -164,6 +213,15 @@ async function upsertRecord(payload, recordId) {
   return toTenantRecord(document)
 }
 
+async function upsertRoom(payload, roomId) {
+  const collection = await getRoomsCollection()
+  const document = sanitizeRoomPayload(payload, roomId)
+
+  await collection.replaceOne({ _id: roomId }, document, { upsert: true })
+
+  return toRoom(document)
+}
+
 app.use(
   cors({
     origin: getCorsOrigin,
@@ -177,6 +235,45 @@ apiRouter.get(
     const collection = await getCollection()
     await collection.db.admin().ping()
     response.json({ ok: true, database: databaseName, collection: collectionName })
+  }),
+)
+
+apiRouter.get(
+  '/rooms',
+  asyncHandler(async (_request, response) => {
+    const collection = await getRoomsCollection()
+    const rooms = await collection.find({}).sort({ roomNo: 1 }).toArray()
+    response.json(rooms.map(toRoom))
+  }),
+)
+
+apiRouter.post(
+  '/rooms',
+  asyncHandler(async (request, response) => {
+    const roomId = assertString(request.body?.id, 'id')
+    const room = await upsertRoom(request.body, roomId)
+
+    response.json(room)
+  }),
+)
+
+apiRouter.put(
+  '/rooms/:id',
+  asyncHandler(async (request, response) => {
+    const roomId = String(request.params.id)
+    const room = await upsertRoom(request.body, roomId)
+
+    response.json(room)
+  }),
+)
+
+apiRouter.post(
+  '/rooms/delete',
+  asyncHandler(async (request, response) => {
+    const roomId = assertString(request.body?.id, 'id')
+    const collection = await getRoomsCollection()
+    await collection.deleteOne({ _id: roomId })
+    response.status(204).send()
   }),
 )
 

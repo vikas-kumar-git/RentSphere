@@ -47,6 +47,10 @@ function normalizeRecordBalance(record: TenantRecord): TenantRecord {
   }
 }
 
+interface SaveRecordOptions {
+  roomId?: string
+}
+
 export function useRecords() {
   const [records, setRecords] = useState<TenantRecord[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -112,7 +116,7 @@ export function useRecords() {
     }
   }, [records])
 
-  async function saveRecord(values: RentFormValues, editId?: string) {
+  async function saveRecord(values: RentFormValues, editId?: string, options?: SaveRecordOptions) {
     const meterFrom = normalizeAmount(values.meterFrom)
     const meterTo = normalizeAmount(values.meterTo)
 
@@ -130,8 +134,10 @@ export function useRecords() {
     const total = bill + rentAmount
     const due = total - paidAmount
 
+    const existingRecord = editId ? records.find((record) => record.id === editId) : undefined
     const nextRecord: TenantRecord = {
       id: editId || crypto.randomUUID(),
+      roomId: options?.roomId || existingRecord?.roomId,
       tenantName: values.tenantName.trim(),
       roomNo: values.roomNo.trim(),
       month: values.month,
