@@ -1,4 +1,4 @@
-export type PaymentStatus = 'Paid' | 'Partial' | 'Unpaid'
+export type PaymentStatus = 'Paid' | 'Partial' | 'Unpaid' | 'Advance'
 
 export interface TenantRecord {
   id: string

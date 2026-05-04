@@ -81,7 +81,7 @@ input:disabled{
 
 .summary{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:repeat(5,1fr);
   gap:14px;
   margin-bottom:20px;
 }
@@ -232,6 +232,25 @@ tr:hover td{
   background:#fafafa;
 }
 
+tfoot td{
+  background:#f8fafc;
+  font-weight:700;
+}
+
+tfoot tr:hover td{
+  background:#f8fafc;
+}
+
+.group-summary-heading td{
+  color:var(--muted);
+  font-size:13px;
+  text-transform:uppercase;
+}
+
+.group-summary-row td{
+  border-bottom-color:#cbd5e1;
+}
+
 .status{
   display:inline-flex;
   align-items:center;
@@ -244,8 +263,14 @@ tr:hover td{
 }
 
 .paid{background:rgba(21,128,61,0.12);color:var(--success)}
+.advance{background:rgba(21,128,61,0.12);color:var(--success)}
 .partial{background:rgba(217,119,6,0.14);color:var(--warn)}
 .unpaid{background:rgba(220,38,38,0.12);color:var(--danger)}
+
+.amount-credit{
+  color:var(--success);
+  font-weight:700;
+}
 
 .row-actions{
   display:flex;

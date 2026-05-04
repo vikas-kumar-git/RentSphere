@@ -90,8 +90,8 @@ function sanitizeRecordPayload(payload, recordId) {
 
   const status = assertString(payload.status, 'status')
 
-  if (!['Paid', 'Partial', 'Unpaid'].includes(status)) {
-    throw createHttpError('status must be Paid, Partial, or Unpaid.', 400)
+  if (!['Paid', 'Partial', 'Unpaid', 'Advance'].includes(status)) {
+    throw createHttpError('status must be Paid, Partial, Unpaid, or Advance.', 400)
   }
 
   return {

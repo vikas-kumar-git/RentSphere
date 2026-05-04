@@ -13,7 +13,11 @@ export const RATE_PER_UNIT = 8
 function calculateStatus(total: number, paidAmount: number): PaymentStatus {
   const due = total - paidAmount
 
-  if (due <= 0) {
+  if (due < 0) {
+    return 'Advance'
+  }
+
+  if (due === 0) {
     return 'Paid'
   }
 
@@ -31,6 +35,16 @@ function normalizeAmount(value: string) {
 
 function getErrorMessage(error: unknown, fallbackMessage: string) {
   return error instanceof Error ? error.message : fallbackMessage
+}
+
+function normalizeRecordBalance(record: TenantRecord): TenantRecord {
+  const due = record.total - record.paid
+
+  return {
+    ...record,
+    due,
+    status: calculateStatus(record.total, record.paid),
+  }
 }
 
 export function useRecords() {
@@ -61,7 +75,7 @@ export function useRecords() {
           return
         }
 
-        setRecords([...recordsToMigrate, ...storedRecords])
+        setRecords([...recordsToMigrate, ...storedRecords].map(normalizeRecordBalance))
       } catch (error) {
         if (!isMounted) {
           return
@@ -93,7 +107,8 @@ export function useRecords() {
       totalRecords: records.length,
       totalAmount: records.reduce((sum, record) => sum + record.total, 0),
       totalPaid: records.reduce((sum, record) => sum + record.paid, 0),
-      totalDue: records.reduce((sum, record) => sum + record.due, 0),
+      totalDue: records.reduce((sum, record) => sum + Math.max(record.due, 0), 0),
+      totalAdvance: records.reduce((sum, record) => sum + Math.max(-record.due, 0), 0),
     }
   }, [records])
 
@@ -113,7 +128,7 @@ export function useRecords() {
     const units = meterTo - meterFrom
     const bill = units * RATE_PER_UNIT
     const total = bill + rentAmount
-    const due = Math.max(total - paidAmount, 0)
+    const due = total - paidAmount
 
     const nextRecord: TenantRecord = {
       id: editId || crypto.randomUUID(),

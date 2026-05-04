@@ -35,6 +35,10 @@ export function getStatusLabel(status: PaymentStatus) {
 }
 
 export function getStatusClass(status: PaymentStatus) {
+  if (status === 'Advance') {
+    return 'advance'
+  }
+
   if (status === 'Paid') {
     return 'paid'
   }

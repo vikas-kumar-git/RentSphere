@@ -48,6 +48,11 @@ function App() {
       value: formatCurrency(summary.totalDue),
       tone: 'danger',
     },
+    {
+      label: 'Advance Paid',
+      value: formatCurrency(summary.totalAdvance),
+      tone: 'success',
+    },
   ]
 
   const filteredRecords = useMemo(() => {
